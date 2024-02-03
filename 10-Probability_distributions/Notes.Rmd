@@ -21,30 +21,31 @@ Useful when a random variable $X$ has exactly two exclusive possible outcomes (e
 X\sim Bin(n,p)
 \end{displaymath}
 
-\begin{equation}
+\begin{displaymath}
 \mathrm{P}(X=k)=\binom{n}{k}p^kq^{n-k}
-\end{equation}
+\end{displaymath}
 
-\begin{equation}
+\begin{displaymath}
 \mathrm{F}(k)=\mathrm{P}(X\leqslant k)=\sum_{i=0}^k\binom{n}{i}p^iq^{n-i}
-\end{equation}
+\end{displaymath}
 
 In the following code examples, equal probabilities are assumed, $n=$ \textbf{size}, $p=$ \textbf{prob} $=0.5$.
 ```
 
 ```{r out.width = "75%", fig.align = "center"}
 # Sequence for visualization
-seq <- seq(0, 25, by=1)
+binomial_seq <- seq(0, 25, by=1)
 
 # Functions
-binomial_density_function <- dbinom(x = seq, size = 25, prob = 0.5)
-binomial_distribution_function <- pbinom(q = seq, size = 25, prob = 0.5)
+binomial_density_function <- dbinom(x = binomial_seq, size = 25, prob = 0.5)
+binomial_distribution_function <- pbinom(q = binomial_seq, size = 25, prob = 0.5)
 
 # Plot
 par(mfrow=c(1,2))
-plot(seq, binomial_density_function, ann = FALSE)
-plot(seq, binomial_distribution_function, type = "S", ann = FALSE)
+plot(binomial_seq, binomial_density_function, ann = FALSE)
+plot(binomial_seq, binomial_distribution_function, type = "S", ann = FALSE)
 ```
+
 ```{r out.width = "75%", fig.align = "center"}
 # Probability for exactly 3 successes out of 10 trials
 dbinom(x = 3, size = 10, prob = 0.5)
@@ -60,3 +61,61 @@ rbinom500 <- rbinom(n = 500, size = 10, prob = 0.5)
 hist(rbinom500, xlab = "Number of successes", ylab = "Frequency", main = NULL)
 summary(rbinom500)
 ```
+
+## Poisson distribution
+
+See page 204 for proper definition.
+
+```{=latex}
+Useful when estimating amounts in random processes where the expected value $(\lambda)$ is known
+
+\begin{displaymath}
+X\sim Poi(\lambda)
+\end{displaymath}
+
+\begin{displaymath}
+\mathrm{P}(X=k)=\frac{\lambda^ke^{-\lambda}}{k!} \;,\; k=0,1,2,\dots ,n
+\end{displaymath}
+
+Note that the Poisson distribution can be used to approximate the binomial distribution when $n$ is large and $p$ is small. In this case, $\lambda=np$ and
+
+\begin{displaymath}
+\mathrm{P}(X=k)=\frac{(np)^ke^{-np}}{k!}
+\end{displaymath}
+```
+
+```{r out.width = "75%", fig.align = "center"}
+# Sequence for visualization
+Poisson_seq <- seq(0, 50, by=1)
+
+# Functions
+Poisson_density_function <- dpois(x = Poisson_seq, lambda = 20)
+Poisson_distribution_function <- ppois(q = Poisson_seq, lambda = 20)
+
+
+# Plot
+par(mfrow=c(1,2))
+plot(Poisson_seq, Poisson_density_function, ann = FALSE)
+plot(Poisson_seq, Poisson_distribution_function, type = "S", ann = FALSE)
+```
+```{r out.width = "75%", fig.align = "center"}
+# A bridge is crossed by 12 people per minute, on average.
+# What is the probability that exactly 16 people crosses it in a minute?
+dpois(x = 16, lambda = 12)
+
+# A bridge is crossed by 12 people per minute, on average.
+# What is the probability that up to 16 people crosses it in a minute?
+ppois(q = 16, lambda = 12)
+
+# Simulate amount of people per minute 10 times
+rpois(n = 10, lambda = 12)
+
+# By repeating the observation once every day for a year,
+# the expected value (lambda = 12) should become visible
+Poisson_pedestrians <- rpois(n = 365, lambda = 12)
+hist(Poisson_pedestrians,breaks = 20,
+     xlab = "Number of pedestrians",ylab = "Frequency",main = NULL)
+
+summary(Poisson_pedestrians)
+```
+

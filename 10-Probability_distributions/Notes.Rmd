@@ -1,0 +1,62 @@
+---
+title: "10. Probability distributions"
+output: pdf_document
+urlcolor: blue
+---
+
+These notes consider the Chapter 10 of the [handbook](https://emotion.utu.fi/tilastotiede/) on various probability distributions.
+
+# Discrete distributions
+
+For random variables with countable number of possible values.
+
+## Binomial distribution
+
+See page 200 for proper definition.
+
+```{=latex}
+Useful when a random variable $X$ has exactly two exclusive possible outcomes (e.g. success/fail) with known probabilities $p\in[0,1]$ (success) and $q=1-p$ (fail). For $n\in\mathbb{N}$ trials with $k=0,1,2,\dots ,n$ successes
+
+\begin{displaymath}
+X\sim Bin(n,p)
+\end{displaymath}
+
+\begin{equation}
+\mathrm{P}(X=k)=\binom{n}{k}p^kq^{n-k}
+\end{equation}
+
+\begin{equation}
+\mathrm{F}(k)=\mathrm{P}(X\leqslant k)=\sum_{i=0}^k\binom{n}{i}p^iq^{n-i}
+\end{equation}
+
+In the following code examples, equal probabilities are assumed, $n=$ \textbf{size}, $p=$ \textbf{prob} $=0.5$.
+```
+
+```{r out.width = "75%", fig.align = "center"}
+# Sequence for visualization
+seq <- seq(0, 25, by=1)
+
+# Functions
+binomial_density_function <- dbinom(x = seq, size = 25, prob = 0.5)
+binomial_distribution_function <- pbinom(q = seq, size = 25, prob = 0.5)
+
+# Plot
+par(mfrow=c(1,2))
+plot(seq, binomial_density_function, ann = FALSE)
+plot(seq, binomial_distribution_function, type = "S", ann = FALSE)
+```
+```{r out.width = "75%", fig.align = "center"}
+# Probability for exactly 3 successes out of 10 trials
+dbinom(x = 3, size = 10, prob = 0.5)
+
+# Probability for up to 3 successes out of 10 trials
+pbinom(q = 3, size = 10, prob = 0.5)
+
+# Simulate 10 times how many successes there is using random numbers
+rbinom(n = 10, size = 10, prob = 0.5)
+
+# With large enough n, expected value (np = 5) should become visible
+rbinom500 <- rbinom(n = 500, size = 10, prob = 0.5)
+hist(rbinom500, xlab = "Number of successes", ylab = "Frequency", main = NULL)
+summary(rbinom500)
+```

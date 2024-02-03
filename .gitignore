@@ -50,3 +50,6 @@ rsconnect/
 
 # Local VSCode settings
 .vscode/
+
+# Knitted PDF for plots only
+Rplots.pdf

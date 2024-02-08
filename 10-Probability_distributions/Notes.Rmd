@@ -34,16 +34,16 @@ In the following code examples, equal probabilities are assumed, $n=$ \textbf{si
 
 ```{r out.width = "75%", fig.align = "center"}
 # Sequence for visualization
-binomial_seq <- seq(0, 25, by=1)
+binomial_seq <- seq(0, 25, by = 1)
 
 # Functions
-binomial_density_function <- dbinom(x = binomial_seq, size = 25, prob = 0.5)
-binomial_distribution_function <- pbinom(q = binomial_seq, size = 25, prob = 0.5)
+binomial_pmf <- dbinom(x = binomial_seq, size = 25, prob = 0.5)
+binomial_cdf <- pbinom(q = binomial_seq, size = 25, prob = 0.5)
 
 # Plot
-par(mfrow=c(1,2))
-plot(binomial_seq, binomial_density_function, ann = FALSE)
-plot(binomial_seq, binomial_distribution_function, type = "S", ann = FALSE)
+par(mfrow = c(1, 2))
+plot(binomial_seq, binomial_pmf, ann = FALSE)
+plot(binomial_seq, binomial_cdf, type = "S", ann = FALSE)
 ```
 
 ```{r out.width = "75%", fig.align = "center"}
@@ -86,17 +86,17 @@ Note that the Poisson distribution can be used to approximate the binomial distr
 
 ```{r out.width = "75%", fig.align = "center"}
 # Sequence for visualization
-Poisson_seq <- seq(0, 50, by=1)
+poisson_seq <- seq(0, 50, by = 1)
 
 # Functions
-Poisson_density_function <- dpois(x = Poisson_seq, lambda = 20)
-Poisson_distribution_function <- ppois(q = Poisson_seq, lambda = 20)
+poisson_pmf <- dpois(x = poisson_seq, lambda = 20)
+poisson_cdf <- ppois(q = poisson_seq, lambda = 20)
 
 
 # Plot
-par(mfrow=c(1,2))
-plot(Poisson_seq, Poisson_density_function, ann = FALSE)
-plot(Poisson_seq, Poisson_distribution_function, type = "S", ann = FALSE)
+par(mfrow = c(1, 2))
+plot(poisson_seq, poisson_pmf, ann = FALSE)
+plot(poisson_seq, poisson_cdf, type = "S", ann = FALSE)
 ```
 ```{r out.width = "75%", fig.align = "center"}
 # A bridge is crossed by 12 people per minute, on average.
@@ -112,10 +112,9 @@ rpois(n = 10, lambda = 12)
 
 # By repeating the observation once every day for a year,
 # the expected value (lambda = 12) should become visible
-Poisson_pedestrians <- rpois(n = 365, lambda = 12)
-hist(Poisson_pedestrians,breaks = 20,
-     xlab = "Number of pedestrians",ylab = "Frequency",main = NULL)
+poisson_pedestrians <- rpois(n = 365, lambda = 12)
+hist(poisson_pedestrians, breaks = 20,
+     xlab = "Number of pedestrians", ylab = "Frequency", main = NULL)
 
-summary(Poisson_pedestrians)
+summary(poisson_pedestrians)
 ```
-

@@ -118,3 +118,29 @@ hist(poisson_pedestrians, breaks = 20,
 
 summary(poisson_pedestrians)
 ```
+
+# Continuous distributions
+
+For random variables with infinite number of possible values.
+
+## Generic definitions
+
+```{=latex}
+PDF
+
+\begin{displaymath}
+\mathrm{P}(a\leqslant X\leqslant b)=\int_a^bf(x) \;\mathrm{d}x
+\end{displaymath}
+
+Note that the point probabilities for continuous random variables are intrinsically zero
+
+\begin{displaymath}
+\int_a^af(x) \;\mathrm{d}x = 0
+\end{displaymath}
+
+CDF
+
+\begin{displaymath}
+\mathrm{P}(X\leqslant t)=\int_{-\infty}^tf(x) \;\mathrm{d}x
+\end{displaymath}
+```

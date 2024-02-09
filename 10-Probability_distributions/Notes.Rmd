@@ -64,7 +64,7 @@ summary(rbinom500)
 
 ## Poisson distribution
 
-See page 204 for proper definition.
+See page 204.
 
 ```{=latex}
 Useful when estimating amounts in random processes where the expected value $(\lambda)$ is known
@@ -125,8 +125,10 @@ For random variables with infinite number of possible values.
 
 ## Generic definitions
 
+See page 208.
+
 ```{=latex}
-PDF
+The probability that an event happens between an interval $[a,b]$ can be calculated from the PDF $f(x)$ as an integral
 
 \begin{displaymath}
 \mathrm{P}(a\leqslant X\leqslant b)=\int_a^bf(x) \;\mathrm{d}x
@@ -144,3 +146,55 @@ CDF
 \mathrm{P}(X\leqslant t)=\int_{-\infty}^tf(x) \;\mathrm{d}x
 \end{displaymath}
 ```
+
+## Normal distribution
+
+See page 210.
+
+```{=latex}
+Many phenomena in nature follow the normal distribution. It is defined by expected value (and median and mode due to symmetry) $\mu$ and (standard) deviation $\sigma$.
+
+\begin{displaymath}
+X\sim N(\mu,\sigma^2)
+\end{displaymath}
+
+\begin{displaymath}
+f(x)=\frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}
+\end{displaymath}
+
+In the following code examples, $\mu=$ \textbf{mean}, $\sigma=$ \textbf{sd}.
+```
+
+```{r out.width = "75%", fig.align = "center"}
+# Sequence for visualization
+normal_seq <- seq(-5, 5, by = 0.01)
+
+# Functions
+normal_pmf <- dnorm(x = normal_seq, mean = 0, sd = 1)
+normal_cdf <- pnorm(q = normal_seq, mean = 0, sd = 1)
+
+
+# Plot
+par(mfrow = c(1, 2))
+plot(normal_seq, normal_pmf, ann = FALSE)
+plot(normal_seq, normal_cdf, type = "S", ann = FALSE)
+```
+
+```{r out.width = "75%", fig.align = "center"}
+# The average length of a zebrafish is 22 mm with a standard diviation of 1 mm.
+# How likely is a fish 23 mm long?
+dnorm(x = 23, mean = 22, sd = 1)
+
+# What fraction of the fish are up to 23 mm long?
+pnorm(q = 23, mean = 22, sd = 1)
+
+# Simulate length of five random fish
+rnorm(n = 5, mean = 22, sd = 1)
+
+# With large enough n, expected value should become visible
+normal_zebrafish <- rnorm(n = 400, mean = 22, sd = 1)
+hist(normal_zebrafish, breaks = 20,
+     xlab = "Fish length", ylab = "Frequency", main = NULL)
+summary(normal_zebrafish)
+```
+

@@ -4,3 +4,4 @@ This repository follows the structure of the first edition of the handbook on st
 
 Instructions on how to install the custom datasets package and the original code snippets can be found [here](https://emotion.utu.fi/tilastotiede/) (in Finnish).
 
+Note that these are mainly my own personal notes so it is probably impossible to study these concepts just based on the materials found here. **I would strongly recommend to get the book if studying is your goal!** Furthermore, I have pulled additional explanations and formulae from other sources (mainly Wikipedia) to fill some gaps on the theoretical side that I feel are useful.

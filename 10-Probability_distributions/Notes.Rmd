@@ -21,9 +21,13 @@ Useful when a random variable $X$ has exactly two exclusive possible outcomes (e
 X\sim Bin(n,p)
 \end{displaymath}
 
+Probability Mass Function (PMF)
+
 \begin{displaymath}
 \mathrm{P}(X=k)=\binom{n}{k}p^kq^{n-k}
 \end{displaymath}
+
+Cumulative Distribution Function (CDF)
 
 \begin{displaymath}
 \mathrm{F}(k)=\mathrm{P}(X\leqslant k)=\sum_{i=0}^k\binom{n}{i}p^iq^{n-i}
@@ -73,6 +77,8 @@ Useful when estimating amounts in random processes where the expected value $(\l
 X\sim Poi(\lambda)
 \end{displaymath}
 
+PMF
+
 \begin{displaymath}
 \mathrm{P}(X=k)=\frac{\lambda^ke^{-\lambda}}{k!} \;,\; k=0,1,2,\dots ,n
 \end{displaymath}
@@ -91,7 +97,6 @@ poisson_seq <- seq(0, 50, by = 1)
 # Functions
 poisson_pmf <- dpois(x = poisson_seq, lambda = 20)
 poisson_cdf <- ppois(q = poisson_seq, lambda = 20)
-
 
 # Plot
 par(mfrow = c(1, 2))
@@ -128,7 +133,7 @@ For random variables with infinite number of possible values.
 See page 208.
 
 ```{=latex}
-The probability that an event happens between an interval $[a,b]$ can be calculated from the PDF $f(x)$ as an integral
+The probability that an event happens between an interval $[a,b]$ can be calculated from the Probability Density Function (PDF) $f(x)$ as an integral
 
 \begin{displaymath}
 \mathrm{P}(a\leqslant X\leqslant b)=\int_a^bf(x) \;\mathrm{d}x
@@ -152,11 +157,15 @@ CDF
 See page 210.
 
 ```{=latex}
-Many phenomena in nature follow the normal distribution. It is defined by expected value (and median and mode due to symmetry) $\mu$ and (standard) deviation $\sigma$.
+Many phenomena in nature follow the normal distribution. Additionally, so called central limit theorem states that the averages of idenpendet random samples drawn from a population approximately follow the normal distribution - even if the population is better desrcibed by some other distribution!
+
+Normal distribution is defined by expected value (and median and mode due to symmetry) $\mu$ and (standard) deviation $\sigma$.
 
 \begin{displaymath}
 X\sim N(\mu,\sigma^2)
 \end{displaymath}
+
+PDF
 
 \begin{displaymath}
 f(x)=\frac{1}{\sigma\sqrt{2\pi}}e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}
@@ -173,11 +182,10 @@ normal_seq <- seq(-5, 5, by = 0.01)
 normal_pmf <- dnorm(x = normal_seq, mean = 0, sd = 1)
 normal_cdf <- pnorm(q = normal_seq, mean = 0, sd = 1)
 
-
 # Plot
 par(mfrow = c(1, 2))
-plot(normal_seq, normal_pmf, ann = FALSE)
-plot(normal_seq, normal_cdf, type = "S", ann = FALSE)
+plot(normal_seq, normal_pmf, type = "l", lwd = 3, ann = FALSE)
+plot(normal_seq, normal_cdf, type = "l", lwd = 3, ann = FALSE)
 ```
 
 ```{r out.width = "75%", fig.align = "center"}
@@ -198,3 +206,47 @@ hist(normal_zebrafish, breaks = 20,
 summary(normal_zebrafish)
 ```
 
+## Student's t-distribution
+
+See page 215.
+
+```{=latex}
+Similar to the normal distribution, Student's $t$ distribution can be used to estimate the expected value of a population using large enough amout of sample averages.
+
+The Student's $t$ distribution is defined by just one parameter, namely the degrees of freedom (DoF) $\nu$. Compared to the normal distribution, the advantage here is that prior knowledge of parameters $\mu$ and $\sigma$ is not needed - which oftentimes is the case. Additionally, with a large $\nu$, the Student's $t$ distribution approaches the standard normal distribution N(0,1). 
+
+PDF is defined using the Gamma function $\Gamma(n)=(n-1)!$.
+
+\begin{displaymath}
+f(t)=\frac{\Gamma(\frac{\nu+1}{2})}{\sqrt{\pi\nu}\Gamma(\frac{\nu}{2})}\left(1+\frac{t^2}{\nu}\right)^{-(\nu+1)/2}
+\end{displaymath}
+
+In the following code examples, $\nu=$ \textbf{df}.
+```
+
+```{r out.width = "75%", fig.align = "center"}
+# Sequence for visualization
+students_t_seq <- seq(-5, 5, by = 0.01)
+
+# Functions
+students_t_pmf <- dt(x = students_t_seq, df = 10)
+students_t_cdf <- pt(q = students_t_seq, df = 10)
+
+# Plot
+par(mfrow = c(1, 2))
+plot(normal_seq, students_t_pmf, type = "l", lwd = 3, ann = FALSE)
+plot(normal_seq, students_t_cdf, type = "l", lwd = 3, ann = FALSE)
+```
+
+```{r}
+# Same as in the earlier examples
+dt(x = 2, df = 20)
+pt(q = 2, df = 20)
+rt(n = 5, df = 20)
+
+# The mean should be around 0 regardless of DoF
+student_values <- rt(n = 200, df = 5)
+hist(student_values, breaks = 20,
+     xlab = "t-values", ylab = "Frequency", main = NULL)
+summary(student_values)
+```

@@ -250,3 +250,80 @@ hist(student_values, breaks = 20,
      xlab = "t-values", ylab = "Frequency", main = NULL)
 summary(student_values)
 ```
+
+## Chi-squared distribution
+
+See page 217.
+
+```{=latex}
+The $\chi^2$ distribution can be used to estimate the distribution of population variances. Suppose we have independent standard normal ($N(0,1)$) random variables $X_1, X_2, \dots, X_k$, then the random variable
+
+\begin{displaymath}
+Q=\sum_{i=1}^k \chi_i^2
+\end{displaymath}
+
+follows the $\chi^2$ distribution ($Q\sim\chi^2(k)$) with $k-1$ DoF.
+
+PDF
+
+\begin{displaymath}
+f(x;\,k) =
+\begin{cases}
+  \dfrac{x^{k/2 -1} e^{-x/2}}{2^{k/2} \Gamma\left(\frac k 2 \right)}, & x > 0; \\ 0, & \text{otherwise}.
+\end{cases}
+\end{displaymath}
+
+In the following code examples, \textbf{df} is the DoF.
+```
+
+```{r out.width = "75%", fig.align = "center"}
+# Sequence for visualization
+chisq_seq <- seq(0, 30, by = 0.02)
+
+# Functions
+chisq_pmf <- dchisq(x = chisq_seq, df = 5)
+chisq_cdf <- pchisq(q = chisq_seq, df = 5)
+
+# Plot
+par(mfrow = c(1, 2))
+plot(chisq_seq, chisq_pmf, type = "l", lwd = 3, ann = FALSE)
+plot(chisq_seq, chisq_cdf, type = "l", lwd = 3, ann = FALSE)
+```
+
+```{r}
+# Same as in the earlier examples
+dchisq(x = 2, df = 4)
+pchisq(q = 2, df = 4)
+rchisq(n = 5, df = 4)
+
+# The mean should be around the DoF
+chisq_values <- rchisq(n = 400, df = 5)
+hist(chisq_values, breaks = 20,
+     xlab = "Chi-sqauerd values", ylab = "Frequency", main = NULL)
+summary(chisq_values)
+
+# Let's also visualize the connection to the standard normal distribution
+# First, generate some distributions
+standard_normal_1 <- rnorm(n = 1000, mean = 0, sd = 1)
+standard_normal_2 <- rnorm(n = 1000, mean = 0, sd = 1)
+standard_normal_3 <- rnorm(n = 1000, mean = 0, sd = 1)
+
+# Calculate the sum of squares (see random variable Q in the definition)
+sum_of_squares <- standard_normal_1^2 + standard_normal_2^2 + standard_normal_3^2
+
+# Plots
+par(mfrow = c(2, 2))
+hist(standard_normal_1, breaks = 20,
+     xlab = "", ylab = "", main = "Normal 1", prob = TRUE)
+hist(standard_normal_2, breaks = 20,
+     xlab = "", ylab = "", main = "Normal 2", prob = TRUE)
+hist(standard_normal_3, breaks = 20,
+     xlab = "", ylab = "", main = "Normal 3", prob = TRUE)
+
+hist(sum_of_squares, breaks = 20, ylim = c(0, 0.25),
+     xlab = "", ylab = "", main = "Chi^2 (3 DoF)", prob = TRUE)
+
+# Overlap an ideal distribution with 3 DoF
+curve(dchisq(x, df = 3), lwd = 2, add = TRUE)
+```
+Intuitively this should make sense: square of a standard normal distribution "flips" the negative values over the mean creating a skewed distribution and summing these enhances the effect.

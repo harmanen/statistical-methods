@@ -2,7 +2,11 @@
 title: "10. Probability distributions"
 output: pdf_document
 urlcolor: blue
+toc: true
 ---
+
+\newpage
+# Introduction
 
 These notes consider the Chapter 10 of the [handbook](https://emotion.utu.fi/tilastotiede/) on various probability distributions.
 
@@ -179,12 +183,12 @@ In the following code examples, $\mu=$ \textbf{mean}, $\sigma=$ \textbf{sd}.
 normal_seq <- seq(-5, 5, by = 0.01)
 
 # Functions
-normal_pmf <- dnorm(x = normal_seq, mean = 0, sd = 1)
+normal_pdf <- dnorm(x = normal_seq, mean = 0, sd = 1)
 normal_cdf <- pnorm(q = normal_seq, mean = 0, sd = 1)
 
 # Plot
 par(mfrow = c(1, 2))
-plot(normal_seq, normal_pmf, type = "l", lwd = 3, ann = FALSE)
+plot(normal_seq, normal_pdf, type = "l", lwd = 3, ann = FALSE)
 plot(normal_seq, normal_cdf, type = "l", lwd = 3, ann = FALSE)
 ```
 
@@ -229,12 +233,12 @@ In the following code examples, $\nu=$ \textbf{df}.
 students_t_seq <- seq(-5, 5, by = 0.01)
 
 # Functions
-students_t_pmf <- dt(x = students_t_seq, df = 10)
+students_t_pdf <- dt(x = students_t_seq, df = 10)
 students_t_cdf <- pt(q = students_t_seq, df = 10)
 
 # Plot
 par(mfrow = c(1, 2))
-plot(normal_seq, students_t_pmf, type = "l", lwd = 3, ann = FALSE)
+plot(normal_seq, students_t_pdf, type = "l", lwd = 3, ann = FALSE)
 plot(normal_seq, students_t_cdf, type = "l", lwd = 3, ann = FALSE)
 ```
 
@@ -281,12 +285,12 @@ In the following code examples, \textbf{df} is the DoF.
 chisq_seq <- seq(0, 30, by = 0.02)
 
 # Functions
-chisq_pmf <- dchisq(x = chisq_seq, df = 5)
+chisq_pdf <- dchisq(x = chisq_seq, df = 5)
 chisq_cdf <- pchisq(q = chisq_seq, df = 5)
 
 # Plot
 par(mfrow = c(1, 2))
-plot(chisq_seq, chisq_pmf, type = "l", lwd = 3, ann = FALSE)
+plot(chisq_seq, chisq_pdf, type = "l", lwd = 3, ann = FALSE)
 plot(chisq_seq, chisq_cdf, type = "l", lwd = 3, ann = FALSE)
 ```
 
@@ -327,3 +331,46 @@ hist(sum_of_squares, breaks = 20, ylim = c(0, 0.25),
 curve(dchisq(x, df = 3), lwd = 2, add = TRUE)
 ```
 Intuitively this should make sense: square of a standard normal distribution "flips" the negative values over the mean creating a skewed distribution and summing these enhances the effect.
+
+## F-distribution
+
+See page 220.
+
+```{=latex}
+The $F$-distribution is defined as the ratio of two independent random variables that follow the $\chi^2$ distribution:
+
+\begin{displaymath}
+F=\frac{S_1/d_1}{S_2/d_2},
+\end{displaymath}
+
+where $S_1\sim\chi^2(i)$ with $d_1 = i - 1$ DoF and $S_2\sim\chi^2(j)$ with $d_2 = j - 1$ DoF. The $F$ distribution, therefore, estimates the distribution of ratios of two variances in a population. The expected value is always 1.
+
+In the following code examples,  $d_1=$ \textbf{df1} and $d_2=$ \textbf{df2}.
+```
+
+```{r out.width = "75%", fig.align = "center"}
+# Sequence for visualization
+f_seq <- seq(0, 5, by = 0.02)
+
+# Functions
+f_pdf <- df(x = f_seq, df1 = 15, df2 = 20)
+f_cdf <- pf(q = f_seq, df1 = 15, df2 = 20)
+
+# Plot
+par(mfrow = c(1, 2))
+plot(f_seq, f_pdf, type = "l", lwd = 3, ann = FALSE)
+plot(f_seq, f_cdf, type = "l", lwd = 3, ann = FALSE)
+```
+
+```{r}
+# Same as in the earlier examples
+df(x = 2, df1 = 10, df2 = 30)
+pf(q = 2, df1 = 10, df2 = 30)
+rf(n = 5, df1 = 10, df2 = 30)
+
+# The mean should be around 1
+f_values <- rf(n = 500, df1 = 10, df2 = 50)
+hist(f_values,
+     xlab = "F-values", ylab = "Frequency", main = NULL)
+summary(f_values)
+```

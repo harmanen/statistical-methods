@@ -1,0 +1,12 @@
+---
+title: "11. - 12. Uncertainty and statistical models"
+output: pdf_document
+urlcolor: blue
+toc: true
+---
+
+\newpage
+# Introduction
+
+These notes consider Chapters 11 (statistical models and dealing with uncertainty) and 12 (statistical tests and hypothesis testing) of the [handbook](https://emotion.utu.fi/tilastotiede/). These chapters are more theoretical with little code examples so I decided to combine them. There are, however, some formulae and concepts worth writing down.
+

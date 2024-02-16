@@ -10,3 +10,25 @@ toc: true
 
 These notes consider Chapters 11 (statistical models and dealing with uncertainty) and 12 (statistical tests and hypothesis testing) of the [handbook](https://emotion.utu.fi/tilastotiede/). These chapters are more theoretical with little code examples so I decided to combine them. There are, however, some formulae and concepts worth writing down.
 
+# Sample mean as a simple model
+
+See page 227.
+
+```{=latex}
+Suppose we have $n$ measurements $x_1,x_2,\dots,x_n$ with a sample mean of $\hat{x}=\frac{1}{n}\sum_{i=1}^nx_i$. The simplest estimate for the error is the Sum of Squares (SoS) defined as
+
+\begin{displaymath}
+SoS=\sum_{i=1}^n(x_i-\hat{x})^2.
+\end{displaymath}
+
+Squaring makes sure that each term of the sum stays non-negative and, therefore, describes the squared "distance" of each measurement to the sample mean. The SoS is a very rough estimate and not that usable as the value tends to increase while $n$ increases. A better estimate is the Mean Squared Error (MSE), which is the SoS divided by $n$. In other words, MSE is the mean of the squares of the errors defined as
+
+\begin{displaymath}
+MSE=\frac{1}{n}\sum_{i=1}^n(x_i-\hat{x})^2.
+\end{displaymath}
+
+This estimate is already better but in the wrong dimension (squared) compared to the measurements. More meaningful estimate of the error can be achieved by taking the square root of the MSE i.e. $\sqrt{MSE}$.
+
+Looking back to Chapter 6 (pages 116-117) we can see that the MSE is the population variance ($\sigma^2$) and $\sqrt{MSE}$ is the standard deviation ($\sigma$) \textbf{if} the measurements cover the whole population.
+```
+

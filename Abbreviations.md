@@ -1,6 +1,7 @@
 # List of abbreviations
 
 - **CDF:** Cumulative Distribution Function
+- **CI:** Confidence interval
 - **CLT:** Central limit theorem
 - **DoF:** Degrees of Freedom
 - **LLS:** Law of large numbers

@@ -66,6 +66,20 @@ In summary, as $n\rightarrow\infty$, the LLS states that the sample average conv
 \sigma_{\hat{x}}=\frac{\sigma }{\sqrt{n}}
 \end{displaymath}
 
-which is the standard deviation of the distribution of $\hat{X_n}$. The SEM is the estimate for how close the sample mean is to the expected value of the population. We can immediately see that the precision increases when the sample size increases or the variance of the population decreses. Note, though, that the the increase in precision by drawing more samples is not linear but slower i.e. a square root of $n$.
+which is the standard deviation of the distribution of $\hat{X_n}$. The SEM is the estimate for how close the sample mean is to the expected value of the population. We can immediately see that the precision increases when the sample size increases or the variance of the population decreases. Note, though, that the the increase in precision by drawing more samples is not linear but slower i.e. a square root of $n$.
 ```
 
+# Confidence intervals
+
+See page 234.
+```{=latex}
+By definition of the normal distribution, about $68.27$ \% of the values are within one standard deviation from the expected value ($\mu\pm\sigma$). This is illustrated in the figure below. A confidence interval (CI) is the interval where a parameter being estimated can typically be found (with a certain confidence level). For instance, in case of our expected value, $68.27$ \% of the possible values for the sample mean are within one SEM from the expected value of the population. This \textbf{does not} mean that the probability to find the expected value of the population within $\pm\sigma$ interval is $68.27$ \%! It merely states that, if an infinitely many samples were drawn, a sample mean would be within the CI $68.27$ \% of the cases. Of course, more sensible confidence levels are usually used. For instance, a 95 \% confidence level corresponds to roughly $\pm2\sigma$ interval (1.96 to be more precise). Additionally, when the standard deviation of the population is not known (required to calculate the SEM), the Student's $t$-distribution can be used to model the distribution of the sample means.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{Standard_deviation_diagram_micro.pdf}
+\caption{For the normal distribution, the values less than one standard deviation away from the mean account for 68.27 \% of the set; while two standard deviations from the mean account for 95.45 \%; and three standard deviations account for 99.73 \%. (Wikipedia/Ainali)}
+\end{figure}
+
+\clearpage
+```

@@ -83,3 +83,137 @@ By definition of the normal distribution, about $68.27$ \% of the values are wit
 
 \clearpage
 ```
+
+# Hypothesis testing
+
+See page 243 onwards. Some additional theory is from Wikipedia.
+
+```{=latex}
+In order to test a scientific hypothesis it is important to formulate a more concrete and measurable (i.e. numerical) statistical hypothesis that can be used to test hypotheses on the population level using smaller samples. This is done by setting up a null hypothesis $H_0$ and an alternative hypothesis $H_1$. They should be mutually exclusive. For instance: "A new medicine lowers the blood pressure ($BP$) on patients." is an understandable statement but cannot really be validated as-is. 
+
+The validity of this statement could be tested with the following experiment. A large number of people are selected. Half of them will receive the new medicine (experiment group) and half of them a placebo (control group). Blood pressures are measured initially and after the medicine should have taken an effect ($\Delta \hat{BP}=\hat{BP}_{end}-\hat{BP}_{initial}$). The statistical hypotheses would then be:
+
+\begin{itemize}
+\item $H_0:$ The new medicine does not lower the blood pressure more than the placebo in population i.e. $\Delta \hat{BP}_{medicine}=\Delta \hat{BP}_{placebo}$
+\item $H_0:$ The new medicine does lower the blood pressure more than the placebo in population i.e. $\Delta \hat{BP}_{medicine}<\Delta \hat{BP}_{placebo}$
+\end{itemize}
+
+Now, what is the point of all of this? Setting statistical hypotheses up this way many biases, such as placebo effects and the Texas sharpshooter fallacy (i.e. coming up with hypotheses \emph{after} seeing the data), can be mitigated. Note that these tests can merely estimate which hypothesis is more supported by the dataset.
+
+The null hypothesis does not indicate that something is "wrong" and the alternative is "right". If $H_0$ is accepted after testing, it just means that the effect being studied (assumed difference in two variables) does not exist in population or it is observed purely by change in a particular sample. $H_0$ could even be the scientific hypothesis to be tested e.g. "A new medicine should not decrease the blood pressure as a side effect".
+
+Statistical significance of a test can be expressed with a $p$-value ($p\in[0,1]$) which describes the probability that the observed result is obtained assuming $H_0$ is correct. In other words, a small $p$-value indicates that the observation is unlikely under $H_0$. In order to calculate any estimates, however, the null distribution (i.e. the distribution assuming $H_0$ is true) must be known. Additionally, there are some pitfalls when interpreting $p$-values:
+
+\begin{itemize}
+\item The $p$-value is not the probability that $H_0$ is true (of $H_1$ false)
+\item The $0.05$ significance level (which is oftentimes used to reject $H_0$ if $p<0.05$) is a convention!
+\item Rejection of $H_0$ does not mean it is \emph{false}. Rejection merely states that the data, assuming a certain distribution to model it, does not support this hypothesis. On top of the $p$-value, rejection or acceptance should \emph{ideally} be based on additional criteria (e.g. data quality) as well.
+\end{itemize}
+```
+
+## Permutation testing
+
+If not already done, install the example datasets (should be installed automatically with the R environment, though).
+
+```
+install.packages("remotes")
+library(remotes)
+
+install_url(
+  "http://emotion.utu.fi/wp-content/uploads/2019/11/nummenmaa_1.0.tar.gz",
+  dependencies=TRUE
+)
+```
+
+Dataset _vilja_ (grain) is needed here. First, let's make sure it works.
+
+```{r}
+library(nummenmaa)
+vilja
+```
+
+It should contain two columns _RYHMA_ (group) and _SATO_ (harvest). Former has two options _Koe_ (Experiment) and _Kontrolli_ (Control), latter is an integer value indicating the amount of harvest in kilograms. 
+
+There are ten equally large pieces of farmland. On half of them (selected randomly), a new fertilizer is used. The rest are left as a control group to estimate whether or not the fertilizer works. Let's formulate the statistical hypotheses.
+
+```{=latex}
+\begin{itemize}
+\item $H_0:$ fertilizer does not affect the harvest ($\mu_{experiment}=\mu_{control}$)
+\item $H_1:$ fertilizer increases the yield of the harvest ($\mu_{experiment}>\mu_{control}$)
+\end{itemize}
+```
+
+Let's explore the data.
+
+```{r out.width = "75%", fig.align = "center"}
+# Boxplot harvest by group
+boxplot(vilja$SATO~vilja$RYHMA, xlab = "Group", ylab = "Harvest")
+```
+By visual inspection only, the overall yield of the experiment does indeed appear to be larger than in the control group. But is this result statistically significant? After all, there is noticeable overlap in the ranges of the two groups.
+
+The idea of the permutation testing is to shuffle the observed data in order to generate a null distribution. This can be then used to estimate how likely it would be to get the observed data assuming the null hypothesis. The first step is to define the test quantity - this can be almost anything that can be calculated from the sample. In our case, we are interested in the difference in the means of the two groups, namely
+
+```{=latex}
+\begin{displaymath}
+\Delta\mu=\mu_{experiment}-\mu_{control}.
+\end{displaymath}
+```
+
+The value for $\Delta\mu$ is 2 in the original data.
+
+```{r}
+tapply(vilja$SATO, vilja$RYHMA, summary)
+```
+
+Now, the permutations are done by keeping the yields as they are but shuffling the groups and calculating $\Delta\mu$s for each permutation. In other words, it is now randomized whether or not a yield measurement belongs to the experiment or control group. With enough iterations, this forms the null distribution. In case the $H_0$ is true, it should not matter where the seeds were planted as the fertilizer would not make difference and the observed $\Delta\mu$ would be a typical value in the null distribution. On the other hand, if it would be unlikely to get the observed $\Delta\mu$ under $H_0$, then the fertilizer probably made a difference.
+
+Note that making permutations is tedious. Even with ten rows a total of $10!=3628800$ permutations exist.
+
+```{r out.width = "75%", fig.align = "center"}
+library(ggplot2)
+
+# Observed difference in the means (2)
+observed <- mean(vilja[vilja$RYHMA == "Koe", "SATO"]) - 
+  mean(vilja[vilja$RYHMA == "Kontrolli", "SATO"])
+
+# Set the same seed as in the example (p. 248) to verify
+set.seed(271142)
+
+# Number of permutations
+n_iterations <- 10000
+
+# Initialize the results vector
+results <- numeric(n_iterations)
+
+# Run permutations
+for (i in 1:n_iterations) {
+  # Shuffle groups
+  new_rows <- sample(nrow(vilja))
+  new_data <- transform(vilja, SATO=SATO[new_rows])
+  
+  # Print the first permutation as an example
+  if(i == 1){
+    print(new_rows)
+    print("Former row 1 (value 12) is now in row 3 etc.")
+    print(new_data)
+  }
+  
+  # Calculate difference for the permutation and save the result
+  results[i] <- mean(new_data[new_data$RYHMA == "Koe", "SATO"]) - 
+  mean(new_data[new_data$RYHMA == "Kontrolli", "SATO"])
+}
+
+# Plot the results
+hist(results, xlab = expression(paste(Delta, mu)), main = NULL)
+abline(v = observed, lty = 2, lwd = 3) # Dashed line at the observed value
+```
+
+As should be, the distribution is centred at 0 (which is the case that there is no difference in the means, i.e. $H_0$). However, already by eye we can see that value 2 is close to the edge of the distribution implying that it is unlikely to get the observed value under $H_0$. But is the result statistically significant?
+
+As o one-sided test, we can calculate how likely it would be to get a value of 2 or higher from the null distribution by chance (divide the amount values >2 with the amount of permutations). This states that $2.4$ % of the values in the null distribution are larger than 2 indicating that it is unlikely to get the observation by change so the new fertilizer probably had an effect.
+
+```{r}
+sum(results > observed) / n_iterations
+```
+
+Like practically everything, the permutation testing method has pros and cons. The good thing is that it is quite versatile and can be used in many cases without the need to know the null distribution etc. beforehand. The biggest problem with this method is, however, the need for computational power - especially with larger datasets. Even with this small example and relatively low amount of iterations the calculations are not instant.

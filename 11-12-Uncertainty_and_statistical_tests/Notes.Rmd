@@ -15,16 +15,16 @@ These notes consider Chapters 11 (statistical models and dealing with uncertaint
 See page 227.
 
 ```{=latex}
-Suppose we have $n$ measurements $x_1,x_2,\dots,x_n$ with a sample mean of $\hat{x}=\frac{1}{n}\sum_{i=1}^nx_i$. The simplest estimate for the error is the Sum of Squares (SoS) defined as
+Suppose we have $n$ measurements $x_1,x_2,\dots,x_n$ with a sample mean of $\bar{x}=\frac{1}{n}\sum_{i=1}^nx_i$. The simplest estimate for the error is the Sum of Squares (SoS) defined as
 
 \begin{displaymath}
-SoS=\sum_{i=1}^n(x_i-\hat{x})^2.
+SoS=\sum_{i=1}^n(x_i-\bar{x})^2.
 \end{displaymath}
 
 Squaring makes sure that each term of the sum stays non-negative and, therefore, describes the squared "distance" of each measurement to the sample mean. The SoS is a very rough estimate and not that usable as the value tends to increase while $n$ increases. A better estimate is the Mean Squared Error (MSE), which is the SoS divided by $n$. In other words, MSE is the mean of the squares of the errors defined as
 
 \begin{displaymath}
-MSE=\frac{1}{n}\sum_{i=1}^n(x_i-\hat{x})^2.
+MSE=\frac{1}{n}\sum_{i=1}^n(x_i-\bar{x})^2.
 \end{displaymath}
 
 This estimate is already better but in the wrong dimension (squared) compared to the measurements. More meaningful estimate of the error can be achieved by taking the square root of the MSE i.e. $\sqrt{MSE}$.
@@ -40,13 +40,13 @@ See page 230. Formal definitions mentioned here are partially supplemented from 
 Suppose we have an infinite sequence of independent and identically distributed random variables $X_1, X_2, \dots, X_n$ with expected values $E(X_1)=E(X_2)=\dots=\mu<\infty$. The law of large numbers (LLS) states that the sample mean
 
 \begin{displaymath}
-\hat{X_n}=\frac{1}{n}(X_1+\cdots+X_n)
+\bar{X}_n=\frac{1}{n}(X_1+\cdots+X_n)
 \end{displaymath}
 
 converges to the expected value of the population i.e.
 
 \begin{displaymath}
-\hat{X_n}\rightarrow\mu \;\mathrm{as}\; n\rightarrow\infty.
+\bar{X}_n\rightarrow\mu \;\mathrm{as}\; n\rightarrow\infty.
 \end{displaymath}
 
 In other words, the expected value of the population can be estimated using the sample mean if the amount of samples is large enough. This, however, does not tell us anything about the precision of the estimate. In practice, it is impossible to draw infinite amount samples meaning some uncertainty always remains.
@@ -55,18 +55,18 @@ In other words, the expected value of the population can be estimated using the 
 In addition, the central limit theorem (CLT) states that, $\mathrm{as}\; n\rightarrow\infty$
 
 \begin{displaymath}
-\hat{X_n}\sim N(\mu,\frac{\sigma^2}{n}),
+\bar{X}_n\sim N(\mu,\frac{\sigma^2}{n}),
 \end{displaymath}
 
 where $\sigma^2$ is the variance of the population.
 
-In summary, as $n\rightarrow\infty$, the LLS states that the sample average converges to the expected value of the population and the CLT states that the distribution of $\hat{X_n}$ gets arbitrarily close to the normal distribution \emph{regardless\footnote{See Figure 11.6. in page 231.}} of the original distribution of $X_i$. Additionally, we now have an error estimate for the precision of the mean for the finite sample size, namely the standard error of the (sample) mean (SEM)
+In summary, as $n\rightarrow\infty$, the LLS states that the sample average converges to the expected value of the population and the CLT states that the distribution of $\bar{X}_n$ gets arbitrarily close to the normal distribution \emph{regardless\footnote{See Figure 11.6. in page 231.}} of the original distribution of $X_i$. Additionally, we now have an error estimate for the precision of the mean for the finite sample size, namely the standard error of the (sample) mean (SEM)
 
 \begin{displaymath}
-\sigma_{\hat{x}}=\frac{\sigma }{\sqrt{n}}
+\sigma_{\bar{x}}=\frac{\sigma }{\sqrt{n}}
 \end{displaymath}
 
-which is the standard deviation of the distribution of $\hat{X_n}$. The SEM is the estimate for how close the sample mean is to the expected value of the population. We can immediately see that the precision increases when the sample size increases or the variance of the population decreases. Note, though, that the the increase in precision by drawing more samples is not linear but slower i.e. a square root of $n$.
+which is the standard deviation of the distribution of $\bar{X}_n$. The SEM is the estimate for how close the sample mean is to the expected value of the population. We can immediately see that the precision increases when the sample size increases or the variance of the population decreases. Note, though, that the the increase in precision by drawing more samples is not linear but slower i.e. a square root of $n$.
 ```
 
 # Confidence intervals
@@ -92,11 +92,11 @@ See page 243 onwards. Some additional theory is from Wikipedia.
 ```{=latex}
 In order to test a scientific hypothesis it is important to formulate a more concrete and measurable (i.e. numerical) statistical hypothesis that can be used to test hypotheses on the population level using smaller samples. This is done by setting up a null hypothesis $H_0$ and an alternative hypothesis $H_1$. They should be mutually exclusive. For instance: "A new medicine lowers the blood pressure ($BP$) on patients." is an understandable statement but cannot really be validated as-is. 
 
-The validity of this statement could be tested with the following experiment. A large number of people are selected. Half of them will receive the new medicine (experiment group) and half of them a placebo (control group). Blood pressures are measured initially and after the medicine should have taken an effect ($\Delta \hat{BP}=\hat{BP}_{end}-\hat{BP}_{initial}$). The statistical hypotheses would then be:
+The validity of this statement could be tested with the following experiment. A large number of people are selected. Half of them will receive the new medicine (experiment group) and half of them a placebo (control group). Blood pressures are measured initially and after the medicine should have taken an effect ($\Delta \bar{BP}=\bar{BP}_{end}-\bar{BP}_{initial}$). The statistical hypotheses would then be:
 
 \begin{itemize}
-\item $H_0:$ The new medicine does not lower the blood pressure more than the placebo in population i.e. $\Delta \hat{BP}_{medicine}=\Delta \hat{BP}_{placebo}$
-\item $H_1:$ The new medicine does lower the blood pressure more than the placebo in population i.e. $\Delta \hat{BP}_{medicine}<\Delta \hat{BP}_{placebo}$
+\item $H_0:$ The new medicine does not lower the blood pressure more than the placebo in population i.e. $\Delta \bar{BP}_{medicine}=\Delta \bar{BP}_{placebo}$
+\item $H_1:$ The new medicine does lower the blood pressure more than the placebo in population i.e. $\Delta \bar{BP}_{medicine}<\Delta \bar{BP}_{placebo}$
 \end{itemize}
 
 Now, what is the point of all of this? Setting statistical hypotheses up this way many biases, such as placebo effects and the Texas sharpshooter fallacy (i.e. coming up with hypotheses \emph{after} seeing the data), can be mitigated. Note that these tests can merely estimate which hypothesis is more supported by the dataset.
@@ -267,12 +267,12 @@ Standard normal distribution is assumed throughout this section. See page 255.
 The visual inspection methods described above can be formulated mathematically using Z-tests. The one-sample Z-test is used in the former scenario: an observed mean of a sample is compared to the expected value of the population. The $Z$-score is defined as
 
 \begin{displaymath}
-Z=\frac{\hat{x}-\mu}{\sigma_{\hat{x}}}=\frac{\hat{x}-\mu}{\sigma / \sqrt{n}}.
+Z=\frac{\bar{x}-\mu}{\sigma_{\bar{x}}}=\frac{\bar{x}-\mu}{\sigma / \sqrt{n}}.
 \end{displaymath}
 
-This describes the difference between the sample and population ($H_0: \hat{x}=\mu$) averages normalized by the SEM meaning the $Z$-score follows the standard normal distribution and directly gives the difference in the amount of standard deviations.
+This describes the difference between the sample and population ($H_0: \bar{x}=\mu$) averages normalized by the SEM meaning the $Z$-score follows the standard normal distribution and directly gives the difference in the amount of standard deviations.
 
-For example: the measured capasity of the working memory in a population is described by $\mu=5$ and $\sigma=2$ in some arbitrary units. Now, a sample of $n=50$ people are randomly selected and a mean of $\hat{x}=5.7$ is observed for the capacity. Using the equation above, we get $z=2.5$ meaning the sample average is $2.5\sigma$ above the $\mu$. By looking at Fig. \ref{fig:normal_distribution}, we can see that the observed value lands at the end tail of the distribution implying that the result probably does not support the null hypothesis.
+For example: the measured capasity of the working memory in a population is described by $\mu=5$ and $\sigma=2$ in some arbitrary units. Now, a sample of $n=50$ people are randomly selected and a mean of $\bar{x}=5.7$ is observed for the capacity. Using the equation above, we get $z=2.5$ meaning the sample average is $2.5\sigma$ above the $\mu$. By looking at Fig. \ref{fig:normal_distribution}, we can see that the observed value lands at the end tail of the distribution implying that the result probably does not support the null hypothesis.
 
 In order to get a numeric result, we can use the PDF to calculate what this means exactly. Usually, and now, a two-sided test is used meaning half of the rejection area is in the lower and half in the upper tail of the distribution. In other words, if 95 \% confidence level is used, 2.5 \% of the lowest and 2.5 \% of the highest values are used for rejection. If a one-sided test was used, the whole 5 \% of the values in the lower OR upper tail of the distribution would be used as a rejection area. One-sided test is more powerful but should only be used when one is absolutely sure that the observed quantity should be larger or smaller than the expected value ($>\mu$ or $<\mu$). The two-sided test "goes both ways" ($\neq\mu$) so it tests both directions simultaneously and is not "blind" to the chance that a wrong direction was assumed.
 ```
@@ -297,7 +297,7 @@ In any case, the probability to get the observed value by chance is 0.0062 meani
 Paired Z-test can be used to compare two independent samples in a similar way. In this case, we are interested in the difference of the means ($H_0: \mu_1=\mu_2$) normalized by the combined SEM i.e.
 
 \begin{displaymath}
-Z=\frac{\hat{x}_1-\hat{x}_2}{\sqrt{\frac{\sigma_1^2}{n_1}+\frac{\sigma_2^2}{n_2}}}.
+Z=\frac{\bar{x}_1-\bar{x}_2}{\sqrt{\frac{\sigma_1^2}{n_1}+\frac{\sigma_2^2}{n_2}}}.
 \end{displaymath}
 
 The interpretation of this value is the same as above: a $Z$-score close to zero supports the null hypothesis and $p$-values can be directly estimated using the CDF.

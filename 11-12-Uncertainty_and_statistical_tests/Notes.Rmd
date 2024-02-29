@@ -79,6 +79,7 @@ By definition of the normal distribution, about $68.27$ \% of the values are wit
 \centering
 \includegraphics[width=0.6\textwidth]{Standard_deviation_diagram_micro.pdf}
 \caption{For the normal distribution, the values less than one standard deviation away from the mean account for 68.27 \% of the set; while two standard deviations from the mean account for 95.45 \%; and three standard deviations account for 99.73 \%. (Wikipedia/Ainali)}
+\label{fig:normal_distribution}
 \end{figure}
 
 \clearpage
@@ -95,7 +96,7 @@ The validity of this statement could be tested with the following experiment. A 
 
 \begin{itemize}
 \item $H_0:$ The new medicine does not lower the blood pressure more than the placebo in population i.e. $\Delta \hat{BP}_{medicine}=\Delta \hat{BP}_{placebo}$
-\item $H_0:$ The new medicine does lower the blood pressure more than the placebo in population i.e. $\Delta \hat{BP}_{medicine}<\Delta \hat{BP}_{placebo}$
+\item $H_1:$ The new medicine does lower the blood pressure more than the placebo in population i.e. $\Delta \hat{BP}_{medicine}<\Delta \hat{BP}_{placebo}$
 \end{itemize}
 
 Now, what is the point of all of this? Setting statistical hypotheses up this way many biases, such as placebo effects and the Texas sharpshooter fallacy (i.e. coming up with hypotheses \emph{after} seeing the data), can be mitigated. Note that these tests can merely estimate which hypothesis is more supported by the dataset.
@@ -105,11 +106,20 @@ The null hypothesis does not indicate that something is "wrong" and the alternat
 Statistical significance of a test can be expressed with a $p$-value ($p\in[0,1]$) which describes the probability that the observed result is obtained assuming $H_0$ is correct. In other words, a small $p$-value indicates that the observation is unlikely under $H_0$. In order to calculate any estimates, however, the null distribution (i.e. the distribution assuming $H_0$ is true) must be known. Additionally, there are some pitfalls when interpreting $p$-values:
 
 \begin{itemize}
-\item The $p$-value is not the probability that $H_0$ is true (of $H_1$ false)
-\item The $0.05$ significance level (which is oftentimes used to reject $H_0$ if $p<0.05$) is a convention!
+\item The $p$-value is \emph{not} the probability that $H_0$ is true (of $H_1$ false). It is the probability that, under $H_0$, the observed sample is acquired.
+\item The $0.05$ significance level (which is oftentimes used to reject $H_0$ if $p<0.05$) is a convention! Consider using a lower value of 0.01, 0.005, or 0.001.
 \item Rejection of $H_0$ does not mean it is \emph{false}. Rejection merely states that the data, assuming a certain distribution to model it, does not support this hypothesis. On top of the $p$-value, rejection or acceptance should \emph{ideally} be based on additional criteria (e.g. data quality) as well.
 \end{itemize}
 ```
+
+Due to the pitfalls mentioned above or e.g. sampling or measurement errors, a wrong conclusion can happen. Two types of errors can happen when using hypothesis testing:
+
+\begin{itemize}
+\item \textbf{Type 1 error} happens when an alternative hypothesis is incorrectly accepted
+\item \textbf{Type 2 error} happens when the null hypothesis is incorrectly accepted.
+\end{itemize}
+
+Type 1 error can be considered to be worse of the two due to the publication bias - a new result is generally easier to get published and could, therefore, steer a research topic to a wrong direction for a long time. Type 2 error, although bad in itself, is less dangerous as there might be some other studies in the future that come to the correct conclusion. Type 1 error can be mitigated by lowering the $p$-value limit for accepting the alternative hypothesis. This, of course, increases the chance for the type 2 error.
 
 ## Permutation testing
 
@@ -217,3 +227,80 @@ sum(results > observed) / n_iterations
 ```
 
 Like practically everything, the permutation testing method has pros and cons. The good thing is that it is quite versatile and can be used in many cases without the need to know the null distribution etc. beforehand. The biggest problem with this method is, however, the need for computational power - especially with larger datasets. Even with this small example and relatively low amount of iterations the calculations are not instant.
+
+## Testing with distribution models
+
+See page 250.
+
+```{=latex}
+Faster and more convenient way to setup tests is to use well-defined statistical distributions to model the null distribution. This requires stricter assumptions to be made. First of all, the distribution for the tested quantity needs to be known. Oftentimes this is the case so it is possible to immediately proceed to estimate the probability that an observed result is acquired assuming $H_0$ is valid. Most common statistical methods can be divided into three main categories:
+
+\begin{itemize}
+\item \textbf{Comparison of sample means} can be used to estimate whether or not some measurable quantity has different values between different samples. Examples: \textbf{$t$-tests} and \textbf{variance analysis} methods.
+\item \textbf{Covariance studies} are used to estimate whether or not the variability of two or more variables is joined. Examples: \textbf{correlation coefficients} and \textbf{regression analysis}.
+\item \textbf{Classification and dimension reduction} methods are useful when there are dozens or hundreds of variables to be estimated. These methods can reveal dependencies between variables in the data but are not suitable for hypothesis testing. Example reduction methods: \textbf{principal component analysis} and \textbf{factor analysis of mixed data}. Example classification methods: \textbf{logistic regression analysis} and \textbf{cluster analysis}.
+\end{itemize}
+
+These types of tests are known as parametric tests i.e. tests that make assumptions about the parameters of the underlying distribution. In case the assumptions (usually normal distribution and precise enough scale) cannot be fulfilled, there are also non-parametric tests to handle these cases. They are more robust but have less statistical power i.e. larger sample sizes are needed. Additionally, many non-parametric tests are based on the order, not values of the data (e.g. largest value is the first etc.).
+```
+
+
+## Examples
+
+A few simple test methods are explained below to give a general idea about parametric tests. See page 254.
+
+### Confidence interval of the mean
+
+```{=latex}
+Assume we know the expected value and, say, the 95 \% confidence interval of some (normal) distribution on the population level. Now, if a measured average of some sample is not within this interval ("within the error bars"), the measurement would be statistically significantly ($p<0.05$) larger or smaller than the expected value.
+
+Other example: assume we have two different measurements (means) from the same population with known 95 \% confidence intervals. In case the intervals do not overlap ("overlapping error bars"), it can be said that the distribution of these two means overlap \emph{at most} by 5 \%.
+
+Note, though, that the opposite in these cases does not hold. For instance, overlapping intervals do not imply that the means are equal (they \emph{can} be, of course).
+```
+
+### Z-tests
+
+Standard normal distribution is assumed throughout this section. See page 255.
+
+```{=latex}
+The visual inspection methods described above can be formulated mathematically using Z-tests. The one-sample Z-test is used in the former scenario: an observed mean of a sample is compared to the expected value of the population. The $Z$-score is defined as
+
+\begin{displaymath}
+Z=\frac{\hat{x}-\mu}{\sigma_{\hat{x}}}=\frac{\hat{x}-\mu}{\sigma / \sqrt{n}}.
+\end{displaymath}
+
+This describes the difference between the sample and population ($H_0: \hat{x}=\mu$) averages normalized by the SEM meaning the $Z$-score follows the standard normal distribution and directly gives the difference in the amount of standard deviations.
+
+For example: the measured capasity of the working memory in a population is described by $\mu=5$ and $\sigma=2$ in some arbitrary units. Now, a sample of $n=50$ people are randomly selected and a mean of $\hat{x}=5.7$ is observed for the capacity. Using the equation above, we get $z=2.5$ meaning the sample average is $2.5\sigma$ above the $\mu$. By looking at Fig. \ref{fig:normal_distribution}, we can see that the observed value lands at the end tail of the distribution implying that the result probably does not support the null hypothesis.
+
+In order to get a numeric result, we can use the PDF to calculate what this means exactly. Usually, and now, a two-sided test is used meaning half of the rejection area is in the lower and half in the upper tail of the distribution. In other words, if 95 \% confidence level is used, 2.5 \% of the lowest and 2.5 \% of the highest values are used for rejection. If a one-sided test was used, the whole 5 \% of the values in the lower OR upper tail of the distribution would be used as a rejection area. One-sided test is more powerful but should only be used when one is absolutely sure that the observed quantity should be larger or smaller than the expected value ($>\mu$ or $<\mu$). The two-sided test "goes both ways" ($\neq\mu$) so it tests both directions simultaneously and is not "blind" to the chance that a wrong direction was assumed.
+```
+
+So, how unlikely would it be to get this result? Let's calculate the PDF using the $Z$-score
+
+```{r}
+# CDF, upper tail
+pnorm(2.5)
+```
+
+This means that 99.38 \% of the values in the distribution are lower than 5.7 and, therefore, 0.62 % equal or higher. This can also be calculated using the CDF and symmetry of the distribution
+
+```{r}
+# CDF, lower tail
+pnorm(-2.5)
+```
+
+In any case, the probability to get the observed value by chance is 0.0062 meaning the null hypothesis can be rejected with $p<0.01$ and this measurement does not support the hypothesis that $\mu=5$ in the population.
+
+```{=latex}
+Paired Z-test can be used to compare two independent samples in a similar way. In this case, we are interested in the difference of the means ($H_0: \mu_1=\mu_2$) normalized by the combined SEM i.e.
+
+\begin{displaymath}
+Z=\frac{\hat{x}_1-\hat{x}_2}{\sqrt{\frac{\sigma_1^2}{n_1}+\frac{\sigma_2^2}{n_2}}}.
+\end{displaymath}
+
+The interpretation of this value is the same as above: a $Z$-score close to zero supports the null hypothesis and $p$-values can be directly estimated using the CDF.
+
+In this form, the variances of the populations must be known and this is not always true. However, they can be replaced with sample variances ($s_1^2$ and $s_2^2$) in case sample sizes are large enough. Depending on the source, limiting values of 30 or 50 for $n_1$ and $n_2$ are used. In practice, the $t$-test is more useful for small samples.
+```

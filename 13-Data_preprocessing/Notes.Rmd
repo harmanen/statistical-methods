@@ -1,0 +1,11 @@
+---
+title: "13. Data preprocessing"
+output: pdf_document
+urlcolor: blue
+toc: true
+---
+
+\newpage
+# Introduction
+
+These notes consider Chapter 13 of the [handbook](https://emotion.utu.fi/tilastotiede/) on data preprocessing i.e. how to ensure that the quality of the data is high enough for analysis.

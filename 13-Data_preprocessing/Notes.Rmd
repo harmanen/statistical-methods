@@ -10,7 +10,7 @@ toc: true
 
 These notes consider Chapter 13 (pages 267 - 279) of the [handbook](https://emotion.utu.fi/tilastotiede/) on data preprocessing. Wide format data is assumed throughout this section.
 
-# Processing
+# Initial processing
 
 Certain steps needs to be taken in order to ensure that the quality of the data is high enough for analysis. Test and analysis methods can be run to practically any data with R so it is the responsibility of the user to make sure that any results are drawn from sensible data.
 
@@ -49,7 +49,7 @@ In case of outliers, it might be tempting to drop them to decrease the dispersio
 - Some outlier values could still be dropped even if they are in some sense "real". For instance, in case where a test subject is not fully or at all focusing on the task at hand and, therefore, yields abnormal results. These scenarios are more difficult to spot.
 - It still can happen that an outlier value cannot be plausibly dismissed and, therefore, is an important piece of information that can make the analysis more difficult (e.g. by violating the assumption of normality). It is easy to imagine that, say, some experimental treatment can be orders of magnitude more expensive than the commonly used ones.
 
-## Value combination
+## Value combinations
 
 Sometimes it can be useful to combine variables describing some common property. For instance, a questionnaire can contain dozens of questions on different symptoms caused by various reasons. In case of, say, anxiety a subset of these question could be combined to give a single value to describe this symptom on some scale. It can be easier to handle combined variables rather than multiple values but, on the other hand, some information about the original data is lost.
 
@@ -58,7 +58,7 @@ Common ways to combine values are by summing or by taking the mean.
 - **Summed variables** are less prone to measurement errors than the original values. The problem with summed variables is that they can be greatly affected by missing values.
 - **Mean variables** are more useful as they are less affected by missing values and have the same dimension as the original values.
 
-## Transformations
+# Transformations
 
 Many statistical tests assume that the data is approximately normally distributed. This is not always the case. Before analysis, the general shape and relevant summary values should be checked using histograms and box plots. In case the distribution is skewed, an attempt to correct this can be made using _invariant_ transformations to the data. The idea is to change the dimension of the data so that the distribution would be closer to normal than the original.
 
@@ -82,7 +82,7 @@ Common transformation types for varying degrees of skewness are listed in the ta
 \end{table}
 ```
 
-### Transformations using R
+## Transformations using R
 
 If not already done, install the example datasets (should be installed automatically with the R environment, though).
 
@@ -156,3 +156,79 @@ hist(kipu$KIPUINVERSE, freq = FALSE, breaks = 12,
 curve(dnorm(x, mean = mean(kipu$KIPUINVERSE), sd = sd(kipu$KIPUINVERSE)), add = TRUE)
 ```
 In this case, square root and logarithmic transformations yield better results than the inversion.
+
+# Testing normality
+
+Visual comparison of observed or transformed distributions to their ideal counterparts is one way to estimate normality. There are also tests and other tools to do this. Some of them are introduced in this section.
+
+## Quantile-quantile (Q-Q) plots
+
+Q-Q plot is a graphical method to compare two distributions by plotting their quantiles against each other. If the result is approximately the identity line ($y(x) = x$), the distributions are similar. More generally, if the result follows a linear curve, the distributions are linearly related. In other words, if an observed distribution and the normal distribution are compared, a linear plot would indicate normality in the observed distribution.
+
+In R, this is done with the `qqnorm()` (plots the data) and `qqline()` (plots the theoretical ideal) functions. 
+
+```{r}
+par(mfrow=c(2, 2))
+# Original
+qqnorm(kipu$KIPUMEAN, frame = FALSE, main = "Original variable")
+qqline(kipu$KIPUMEAN, col = "red", lwd = 2)
+
+# Sqrt
+qqnorm(kipu$KIPUSQRT, frame = FALSE, main = "Square root transformation")
+qqline(kipu$KIPUSQRT, col = "red", lwd = 2)
+
+# Log
+qqnorm(kipu$KIPULOG, frame = FALSE, main = "Logarithmic transformation")
+qqline(kipu$KIPULOG, col = "red", lwd = 2)
+
+# 1/x
+qqnorm(kipu$KIPUINVERSE, frame = FALSE, main = "Inverted transformation")
+qqline(kipu$KIPUINVERSE, col = "red", lwd = 2)
+```
+
+Seems like none of these are normally distributed. This is probably due to the fact that zero values were overrepresented in the data (i.e. answers that pain did not cause any effects) meaning no transformation can help with this.
+
+## Numeric tests
+
+There are some methods to numerically estimate normality e.g. the [Kolmogorov–Smirnov test](https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test) and the [Shapiro–Wilk test](https://en.wikipedia.org/wiki/Shapiro%E2%80%93Wilk_test). These test the null hypothesis that an observed distribution follows the normal distribution i.e. a small $p$-value from these tests would suggest against normality. Using the same examples as above.
+
+```{r}
+shapiro.test(kipu$KIPUMEAN)
+shapiro.test(kipu$KIPUSQRT)
+shapiro.test(kipu$KIPULOG)
+shapiro.test(kipu$KIPUINVERSE)
+```
+
+These $p$-values would also suggest that none of the distributions are normal. But should the results of these numeric tests be blindly accepted? If the result suggest normality, then yes. If this is not the case, additional inspection needs to be done. For example, the height _(PITUUS)_ of people is known to follow the normal distribution in the population. What about in case of our dataset?
+
+```{r}
+par(mfrow=c(1, 2))
+
+# Histogram of heights
+hist(kipu$PITUUS, freq = FALSE, breaks = 12, xlab = NULL, main = "Height")
+
+# Ideal normal distribution based on mean and sd of the data
+curve(dnorm(x, mean = mean(kipu$PITUUS), sd = sd(kipu$PITUUS)), add = TRUE)
+
+# Q-Q plot
+qqnorm(kipu$PITUUS, frame = FALSE, main = "Q-Q plot")
+qqline(kipu$PITUUS, col = "red", lwd = 2)
+```
+
+Even in this data, the height seems roughly to follow the normal distribution. But the test
+
+```{r}
+shapiro.test(kipu$PITUUS)
+```
+
+would indicate otherwise. This happens because the Shapiro–Wilk test is extremely powerful to find non-normality and, therefore, should not be trusted blindly when the $p$-value is small.
+
+Other useful values are the _skewness_ and _kurtosis_ of a distribution. Absolute values less than 1 would indicate normality in these cases.
+
+```{r}
+library(moments)
+skewness(kipu$PITUUS)
+kurtosis(kipu$PITUUS)
+```
+
+These values would suggest that the distribution is rather symmetric but perhaps too heavy-tailed to be normal.

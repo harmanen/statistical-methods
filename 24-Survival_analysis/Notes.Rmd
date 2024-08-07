@@ -1,0 +1,320 @@
+---
+title: "24. Survival analysis"
+output: pdf_document
+urlcolor: blue
+toc: true
+---
+
+\newpage
+# Introduction
+
+These notes consider Chapter 24 (pages 483 - 498) of the [handbook](https://emotion.utu.fi/tilastotiede/) on survival analysis methods. Originally, and as the name suggests, these methods were created to model the survival times of patients e.g. after diagnosis or medical operation. Generally, however, they can be used in situations where an end point event (e.g. death) may occur only once\footnote{To be precise, multiple occurrences are allowed (e.g. relapses) but only the first one is considered as the end point event for the subject.} for a subject during a fixed follow-up period. Compared to linear regression, for instance, these methods are able to take into account that some of the subjects may enter (or leave before event) the study population during the study period. Additionally, the time time to the end point event varies between subjects and some may never reach it within the follow-up period.
+
+Additional materials used in this section are related articles on Wikipedia and [this UCLA tutorial video](https://www.youtube.com/watch?v=Y_83HXuHMdc) for Cox regression (see section Supplementary material).
+
+# Basic concepts
+
+Key definitions for survival analysis are Survival function $S(t)$, hazard function $f(t)$, and cumulative hazard function $F(t)$. The survival function is the probability that a subject survives past a certain time and it is related to the other functions with the following way:
+
+\begin{displaymath}
+S(t) = P(T>t) = \int_t^{\infty}f(u)\;\mathrm{d}u = 1-F(t).
+\end{displaymath}
+
+By definition, $S(0)=1$ and its value decreases as time goes on. On the other hand, $F(t) = 1 - S(t)$ describes the probability that the end point event has occurred by a certain time $t$. Which function is better to use in practice depends on the research question at hand.
+
+Additionally, hazard function $h(t)$ can be now defined as
+
+\begin{displaymath}
+h(t) = \frac{f(t)}{S(t)}.
+\end{displaymath}
+
+This describes the rate in which subjects reach the event. It can also be used to estimate if the rate to event changes over time. For instance, the probability of death after birth rises slowly at first but, eventually, grows to 1 relatively steeply.
+
+# Life tables
+
+A life table is a way to organize and describe relevant data for survival analysis methods. They show, per time step, the amount of surviving subjects, deaths, those who left the study population (right side **censoring**\footnote{Left side censoring may be relevant in cases where the start time is not known. For instance, a subject may have an infectious disease but the exposure time is not known.}) etc. Additionally, key figures can be calculated, such as the amount of subjects at risk and the cumulative survival probability. See page 487 for an example. One of the main issues with life tables is the fact that the width of the time window stays constant for each step. With short time intervals no events may occur during some steps and, on the other hand, too long intervals lose information: when exactly did the event occur during this period?
+
+\clearpage
+
+# Kaplan--Meier estimator
+
+Compared to a constant time window, a more precise way to approach survival modelling is with step functions. In these cases, an estimate is calculated every time at least one event takes place. One of the most commonly used methods to estimate the survival function is the Kaplan--Meier (KM) estimator
+
+\begin{displaymath}
+S(t) = \prod_{i:\;t_i\le t}\left(1 - \frac{d_i}{n_i}\right),
+\end{displaymath}
+
+where $d_i$ is the number of events (one or more) at $t_i$ and $n_i$ is number of subjects who have survived up to time $t_i$. Notice that $n_i$ includes subjects who have not had an event _and_ who have not been censored.
+
+## Kaplan--Meier using R
+
+If not already done, install the example datasets (should be installed automatically with the R environment, though).
+
+```
+install.packages("remotes")
+library(remotes)
+
+install_url(
+  "http://emotion.utu.fi/wp-content/uploads/2019/11/nummenmaa_1.0.tar.gz",
+  dependencies=TRUE
+)
+```
+Dataset _elinaika_ (lifetime) is needed in this case. Sugar metabolism in the brain (_AIVOMETAB_) has been measured to see if this could be used to predict survival time (_ELINAIKA_) of subjects during the follow-up period. Status variable _KUOLLUT_ (dead) describes whether a subject has died (1) or has been censored (0).
+
+```{r}
+library(nummenmaa)
+library(survival)
+library(survminer)
+head(elinaika)
+```
+
+The `Surv()` function produces a survival object which in this case is a list of survival times. Censored observations are marked with a `+`. In other words, the survival object contains the information of variables _ELINAIKA_ and _KUOLLUT_ in one vector.
+
+```{r}
+elinajat <- Surv(elinaika$ELINAIKA, elinaika$KUOLLUT)
+head(elinajat)
+```
+
+The KM survival curve is produced with the `surfit()` function. A model is given in the form `survival_object ~ predictors`. In this case, predictor 1 indicates that the whole dataset is used.
+
+```{r}
+fit <- survfit(elinajat ~ 1, data = elinaika)
+
+ggsurvplot(fit,
+           conf.int = TRUE, # Show confidence intervals?
+           risk.table = TRUE, # Show risk table below the graph?
+           censor = TRUE, # Show censored subjects with "+" in the graph?
+           surv.median.line = "hv", # Line for median
+           size = 0.35,
+           palette = "uchicago",
+           xlab = "Time",
+           ylab = "Survival probability")
+```
+
+Check fit (especially that _n_ and _events_ match the data), _median_ shows the time point where the fit would predict that the probability of survival is 0.5.
+
+```{r}
+fit
+```
+
+As expected, _n.risk_ (subjects at risk) and _survival_ (survival probability) decrease as _time_ increases.
+
+```{r}
+summary(fit)
+# or broom::tidy(fit) to get the results as a tibble
+```
+
+# Logrank test
+
+On their own, the KM survival curves can be used to estimate the probability of survival as a function of time. With the logrank test, it is possible to compare these curves and see whether or not the they have statistically significant differences. For instance, comparing control / placebo groups to patients receiving actual treatment is possible in a meaningful way. Of course, it is possible to estimate the difference in a given time point but these do not describe the whole data. Even a point estimate at the end of the follow-up time is not that useful: this approach would not properly account for censoring.
+
+## Logrank using R
+
+The same dataset is used as before. This time the gender variable (_SUKUP_) is used to stratify the data.
+
+```{r warning=FALSE}
+fit <- survfit(elinajat ~ SUKUP, data = elinaika)
+
+ggsurvplot(fit,
+           conf.int = TRUE, # Show confidence intervals?
+           pval = TRUE, # Show the p-value?
+           risk.table = TRUE, # Show risk table below the graph?
+           censor = TRUE, # Show censored subjects with "+" in the graph?
+           surv.median.line = "hv", # Line for median
+           size = 0.35,
+           palette = "uchicago",
+           xlab = "Time",
+           ylab = "Survival probability")
+```
+
+The curves are rather different for different genders but there is also considerable overlap in the confidence intervals. A logrank test can be done using the `survdiff()` function\footnote{Under the hood, `survdiff()` uses default argument $\rho=0$ for weights. The closer the value is to $1$ the more emphasis is given to the early points of the data.}.
+
+```{r}
+survdiff(elinajat ~ SUKUP, data = elinaika)
+```
+
+The result follows the $\chi^2$ distribution with $number\_of\_strata - 1$ degrees of freedom i.e. $2-1=1$ in this case. Large values are rare in the distribution so the result (13) is much larger than the DoF meaning the curves are statistically significantly different ($p<0.001$ in this case).
+
+\clearpage
+
+# Cox model
+
+The logrank test can be used to compare two survival curves and their differences based on a categorical variable. The Cox model, on the other hand, can be used to estimate the ratio of the hazard functions that depend on one or more covariates. The model assumes that the _ratio_ stays constant over time. For instance, if the hazard of a heart attack is halved by some medication, then the ratio $h(t)_{treatment} / h(t)_{control}$ must be $0.5$ at all times. Because of this, these type of models are also known as proportional hazards models.
+
+For subject $i$, the hazard function is defined as
+
+\begin{displaymath}
+h(t|X_i) = h_0(t)\exp\left(\sum_{j = 1}^p \beta_j X_{ij}\right) = h_0(t)\exp(\beta\cdot X_i),
+\end{displaymath}
+
+where $h_0(t)$ is the baseline hazard (i.e. when $\beta = 0$) at time $t$, $X_i = (X_{i1}, \cdots, X_{ip})$ are the values of $p$ covariates, and $\beta = (\beta_1, \cdots, \beta_p)$ are the model coefficients or effect parameters.
+
+Let's illustrate the idea of proportional hazards by considering a single-variable model where $X_1=1$ for treatment and $X_1=0$ for control. Now, the _hazard ratio_ (HR) is defined as
+
+\begin{displaymath}
+\mathrm{HR}=\frac{h(t|X_1=1)}{h(t|X_1=0)} = \frac{h_0(t)\exp(\beta_1)}{h_0(t)} = \exp(\beta_1).
+\end{displaymath}
+
+When considering hazard ratios, the baseline hazard $h_0(t)$, which is independent of $i$ and therefore constant for all subjects, cancels out and this is the power of this method: there is no need to make any assumptions about the underlying distribution when attempting to make a parametric model for the baseline hazard. There is no need to know the exact shape of it. The downside of this method is that, because it can only be used to compare hazard ratios and not the hazard functions themselves, the survival functions cannot be derived from the Cox model as it is. However, comparison of e.g. treatment vs. control _is_ oftentimes the problem at hand which makes this so useful.
+
+## Cox model using R
+
+The Cox proportional hazards regression model can be fitted by the `coxph()` function. The usual R formula is given where the left hand side is the survival object and the right hand side defines the model predictors. In this case, _AIVOMETAB_ and _ASUINPAIKKA_ (residence) is used. The former is a continous variable whereas the latter has two options: _maaseutu_ (countryside) and _kaupunki_ (city).
+
+```{r}
+summary(coxph(elinajat ~ AIVOMETAB + ASUINPAIKKA, data = elinaika))
+```
+
+At the bottom there are three tests for the general fitness of the model. Small $p$-values indicate that the model fits well. How about the predictors\footnote{Column $coef$ are the $\beta$ values and $exp(coefs)$ are the scaling factors i.e. the closer the value is to 0 in the former and to 1 in the latter, the less effect this predictor has.}? Values in columns z Pr(>|z|) indicate that both predictors are statistically significantly different from 0. _AIVOMETAB_ suggests decreased risk with lower metabolism while _ASUINPAIKKA_ shows that living in the countryside (_maaseutu_) increases the risk.
+
+# Supplementary material
+
+Additional notes from the [UCLA tutorial video](https://www.youtube.com/watch?v=Y_83HXuHMdc) can be found below.
+
+```{r}
+library(broom)
+```
+
+## Example 1 (Kaplan--Meier, logrank)
+
+Dataset `veteran` is used here. It ships with the `survival` package and contains data about randomized trial concerning lung cancer treatment.
+
+```{r}
+head(veteran)
+```
+
+KM survival estimate for the whole dataset. Median survival time after the treatment is 80 days.
+
+```{r}
+KM <- survfit(Surv(time, status) ~ 1, veteran)
+
+KM
+```
+
+Display results in table format.
+
+```{r}
+tidy(KM)
+```
+
+Plot results. Survival seems to drop rather quickly during the first 6 months.
+
+```{r}
+ggsurvplot(KM, conf.int = TRUE, risk.table = TRUE)
+```
+
+Let's stratify by treatment (_trt_) to see if there is a difference between them. There are two treatments coded as 1 and 2.
+
+```{r}
+KM_strat <- survfit(Surv(time, status) ~ trt, veteran)
+ggsurvplot(KM_strat, conf.int = TRUE, risk.table = TRUE)
+```
+
+```{r}
+survdiff(Surv(time, status) ~ trt, veteran)
+```
+
+There seems to be practically no evidence that these treatments produce different outcomes $(\chi^2=0<<\mathrm{DoF},p=0.9 >> 0.05)$.
+
+\clearpage
+
+## Example 2 (Cox)
+
+Dataset `lung` is used here. It ships with the `survival` package and contains data about the survival of patients with advanced lung cancer.
+
+```{r}
+head(lung)
+```
+
+Cox model with _age_ (years, integer), _sex_ (1=male, 2=female), and _wt.loss_ (weight loss in pounds in past six months, integer) as predictors. Survival _time_ is in days and _status_ is coded as 1 (censored) or 2 (dead).
+
+```{r}
+lung.cox <- coxph(Surv(time, status) ~ age + sex + wt.loss, lung)
+summary(lung.cox)
+```
+
+Tests at the bottom indicate that, generally, the model fits well ($p<0.005$). The values of _coef_ can be interpreted as the log of the hazard ratio (and _exp(coef)_ as the hazard ratio): increase in positive value increases the hazard whereas increase in the negative value lowers the hazard as time goes on. Higher hazard -> lower survival. Coefficients _age_ and _wt.loss_ suggest increasing hazard with increasing age (1.02 or 2 \%) and weight loss, respectively. For females, the hazard seems to be lower (40 %) but this kind of fit to a categorical variable is usually not sensible to do. See below for more. Column $z$ is the Z-test against the null hypothesis ("there is no change"). If a confidence interval for the hazard ratios in the middle contains 1, the predictor is probably not significant $p>0.05$.
+
+Convert fit to tabular form for plotting.
+
+```{r}
+lung.cox.tab <- tidy(lung.cox, exponentiate = TRUE, conf.int = TRUE)
+lung.cox.tab
+```
+
+One way to visualize these results is to plot the estimates with confidence intervals and see whether or not the intervals contains 1.
+
+```{r}
+ggplot(lung.cox.tab,
+       aes(y = term, x = estimate, xmin = conf.low, xmax = conf.high)) + 
+  geom_pointrange() +
+  geom_vline(xintercept = 1, color = "red") +
+  labs(x = "Hazard ratio", title = "Hazard ratios and 95 % CIs") +
+  theme_classic()
+```
+
+\clearpage
+
+As a default fit is done to means which does not make sense with categorical variables. It is possible to tell this to the fitting function by manually creating categorical data for stratifying.
+
+```{r}
+plotdata <- data.frame(age = mean(lung$age),
+                       sex = 1:2,
+                       wt.loss = mean(lung$wt.loss, na.rm = TRUE))
+
+fit <- survfit(lung.cox, newdata = plotdata)
+
+tidy(fit)
+```
+
+```{r warning=FALSE}
+ggsurvplot(fit, data = plotdata, cencor = FALSE)
+```
+
+### Testing proportional hazard assumption
+
+There are tools to test whether or not the proportional hazards assumption holds over time. Function `cox.zph()` tests that
+
+- $H_0$: covariate effect is constant over time
+- $H_1$: Covariate effect changes over time.
+
+If the $p$-value of this test suggests statistical significance, the proportional hazard assumption probably does _not_ hold for the variable in question.
+
+
+```{r}
+cox.zph(lung.cox)
+```
+
+Flat line -> proportional hazard holds.
+
+```{r}
+plot(cox.zph(lung.cox))
+```
+
+Dealing with proportional hazard violations e.g. sex in this case, where the $p$-value --> 0.5 and the line is not flat (roughly from -1 to 0 over time).
+
+```{r}
+# Stratify by the non-PH value
+# Split data by strata, average results
+# E.g. wt.loss should not change
+lung.cox.strat <- coxph(Surv(time, status) ~ age + wt.loss + strata(sex), lung)
+summary(lung.cox.strat)
+```
+
+\clearpage
+
+It is also possible to try and model the time variability of the predictor violating the proportional hazards assumption.
+
+```{r}
+lung.cox.tt <- coxph(Surv(time, status) ~ age + wt.loss + sex + tt(sex), 
+                     lung,
+                     # Model linear change over time. Could be anything e.g.
+                     # logarithmic x*log(t)
+                     # 2 different values x*(t>100) etc.
+                     tt = function(x, t, ...) x*t)
+
+summary(lung.cox.tt)
+# sex: value at beginning
+# tt(sex): value change per time unit
+```
+
